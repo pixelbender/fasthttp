@@ -42,7 +42,8 @@ type Request struct {
 	// Request header
 	//
 	// Copying Header by value is forbidden. Use pointer to Header instead.
-	Header RequestHeader
+	Header     RequestHeader
+	UseFullURI bool
 
 	uri      URI
 	postArgs Args
@@ -1553,7 +1554,11 @@ func (req *Request) Write(w *bufio.Writer) error {
 		} else if !req.UseHostHeader {
 			req.Header.SetHostBytes(host)
 		}
-		req.Header.SetRequestURIBytes(uri.RequestURI())
+		if req.UseFullURI {
+			req.Header.SetRequestURIBytes(uri.FullURI())
+		} else {
+			req.Header.SetRequestURIBytes(uri.RequestURI())
+		}
 
 		if len(uri.username) > 0 {
 			// RequestHeader.SetBytesKV only uses RequestHeader.bufKV.key
